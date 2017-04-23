@@ -23,7 +23,7 @@ library(choroplethrZip)
 #### Load Datasets
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, Load_the_Data}
-# Load the Contribution Data and Column Names for Michigan
+# Load the Contribution Data for Michigan
 header <- read.table("2016-MI.csv", nrow = 1, stringsAsFactors = FALSE, sep = ",")
 contrib <- read.table("2016-MI.csv", skip = 1, stringsAsFactors = FALSE, sep = ",")
 names(contrib) <- header
@@ -33,12 +33,12 @@ header <- read.table("candidate-list.csv", nrow = 1, stringsAsFactors = FALSE, s
 cand_info <- read.table("candidate-list.csv", skip = 1, stringsAsFactors = FALSE, sep = ",")
 names(cand_info) <- header
 
-# Load Unemployment Information
+# Load Unemployment Dataset
 header <- read.table("unemployment-zipcode.csv", nrow = 1, stringsAsFactors = FALSE, sep = ",")
 unemployment <- read.table("unemployment-zipcode.csv", skip = 1, stringsAsFactors = FALSE, sep = ",")
 names(unemployment) <- header
 
-# Load Population Density Information
+# Load Population Density Dataset
 header <- read.table("population-density-zipcode.csv", nrow = 1, stringsAsFactors = FALSE, sep = ",")
 pop_density <- read.table("population-density-zipcode.csv", skip = 1, stringsAsFactors = FALSE, sep = ",")
 names(pop_density) <- header
@@ -54,7 +54,7 @@ Michigander, I'm particularly interested in Michigan's current political climate
 ## Univariate Plots Section
 
 #### Dataset Characteristics
-```{r echo=FALSE, message=FALSE, warning=FALSE, Univariate_Plots}
+```{r echo=FALSE, message=FALSE, warning=FALSE, Dataset_Characteristics}
 str(contrib)
 ```
 
@@ -62,11 +62,11 @@ str(contrib)
 length(unique(contrib$cand_nm))
 ```
 
-Our dataset consists of 18 variables, with 163,765 observations and 24 
-individual candidates that people contributed to.
+Our dataset consists of 18 variables, with 163,765 observations and 24 individual 
+candidates that residents contributed to.
 
 #### Summary of Contributions to Each Candidates
-```{r echo=FALSE, message=FALSE, warning=FALSE, Univariate_Plots}
+```{r echo=FALSE, message=FALSE, warning=FALSE, Contributions_by_Candidate}
 cands <- group_by(contrib, cand_nm)
 cand_summary <- summarize(cands, total = length(contb_receipt_amt),
                           avg = mean(contb_receipt_amt, na.rm = TRUE), 
@@ -79,11 +79,11 @@ ordered_cands
 
 The top Democratic candidates (Hillary Clinton, Bernie Sanders) received the 
 largest number of donations, while the top three Republican candidates (Donald 
-Trump, Ted Cruz, Ben Carson) received fewer overall donations, but the median 
+Trump, Ted Cruz, Ben Carson) received fewer overall donations. The median 
 donation per Republican candidate was roughly double that of the Democrats.
 
 #### Summary of Contributions by City
-```{r echo=FALSE, message=FALSE, warning=FALSE, Univariate_Plots}
+```{r echo=FALSE, message=FALSE, warning=FALSE, Contributions_by_City}
 city <- group_by(contrib, contbr_city)
 city_summary <- summarize(city, total = length(contb_receipt_amt),
                           avg = mean(contb_receipt_amt, na.rm = TRUE), 
@@ -100,17 +100,17 @@ understanding of the wealth in these communities.
 ### Contribution Histograms
 
 #### Overall Distribution
-```{r echo=FALSE, message=FALSE, warning=FALSE, Univariate_Plots}
+```{r echo=FALSE, message=FALSE, warning=FALSE, Overall_Histogram}
 ggplot(aes(x = contb_receipt_amt), data = contrib) + 
   geom_histogram(binwidth=5) +
   scale_x_sqrt(limits = c(0,2800))
 ```
-A vast majority of donations were less than $500, which shows that, it's not 
-just rich donors making a majority of the contributions, at least in the context 
+A vast majority of donations were less than $500, which shows that it's not 
+just rich donors making a majority of the contributions at least in the context 
 of individual donations.
 
 #### Contributions less than $100
-```{r echo=FALSE, message=FALSE, warning=FALSE, Univariate_Plots}
+```{r echo=FALSE, message=FALSE, warning=FALSE, Less_100}
 ggplot(aes(x = contb_receipt_amt), data = subset(contrib,contb_receipt_amt < 100)) + 
   geom_histogram(binwidth=10) +
   scale_x_continuous(limits = c(0, 100))
@@ -119,14 +119,14 @@ For donations less than $100, you can notice peaks around $25, $50 and $75
 which aligns with suggested donation amounts incremented by $25.
 
 #### Contributions less than $400
-```{r echo=FALSE, message=FALSE, warning=FALSE, Univariate_Plots}
+```{r echo=FALSE, message=FALSE, warning=FALSE, Less_400}
 ggplot(aes(x = contb_receipt_amt), data = subset(contrib,contb_receipt_amt < 400)) + 
   geom_histogram(binwidth=50) +
   scale_x_continuous(limits = c(0, 400))
 ```
 
 #### Contributions greater than $1000
-```{r echo=FALSE,message=FALSE, warning=FALSE,  Univariate_Plots}
+```{r echo=FALSE,message=FALSE, warning=FALSE,  Greater_1000}
 ggplot(aes(x = contb_receipt_amt), data = subset(contrib,contb_receipt_amt > 1000)) + 
   geom_histogram(binwidth=750) +
   scale_x_continuous(limits = c(1000, 6000)) +
@@ -137,10 +137,10 @@ According to the Federal Election Commission, individual contribution limits are
 > $2,700 per election to a Federal candidate or the candidate's campaign committee. Notice that the limit applies separately to each election. Primaries, runoffs and general elections are considered separate elections.
 
 Since presidential campaigns have primaries and general elections, you can see 
-this reflected in the clustering of contribution amounts at $2700 and $5400. 
+this reflected in the clustering of contribution counts at $2700 and $5400. 
 
 ### Candidates with the Most and Fewest Donations
-```{r echo=FALSE, message=FALSE, warning=FALSE, Univariate_Plots}
+```{r echo=FALSE, message=FALSE, warning=FALSE, Most_Fewest_Donations}
 p1 <- ggplot(aes(y=total, x= cand_nm),data=head(ordered_cands, 5)) + 
         geom_bar(stat="identity") + 
         theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
@@ -161,7 +161,7 @@ candidates have less than 10 donations.
 
 ### Contributor Occupations and Employers
 
-```{r echo=FALSE, message=FALSE, warning=FALSE, Univariate_Plots}
+```{r echo=FALSE, message=FALSE, warning=FALSE, Employment_Stats}
 contrib %>% 
   group_by(contbr_employer) %>% 
   summarise(total = n()) %>%
@@ -183,13 +183,13 @@ Employment Observations
 ### Contribution Timing
 
 #### Add Date to Contributions
-```{r echo=FALSE, message=FALSE, warning=FALSE, Formatting}
+```{r echo=FALSE, message=FALSE, warning=FALSE, Format_Date}
 contrib$contrib_date <- as.Date(contrib$contb_receipt_dt, '%d-%b-%y')
 contrib$contrib_month_year <- format(contrib$contrib_date, '%Y-%m')
 ```
 
-#### Contribution Totals by Date
-```{r echo=FALSE, message=FALSE, warning=FALSE,  Univariate_Plots}
+#### Contribution Counts by Date
+```{r echo=FALSE, message=FALSE, warning=FALSE,  Count_by_Date}
 contrib_by_month_year <- contrib %>% 
   group_by(contrib_month_year) %>% 
   summarise(total = n())
@@ -223,20 +223,20 @@ around key election events (like primaries, conventions or scandals).
 ### Determine Contributor Gender and Candidate Political Party Affiliation
 
 #### Add Political Party Affiliation
-```{r echo=FALSE, message=FALSE, warning=FALSE, Univariate_Plots}
+```{r echo=FALSE, message=FALSE, warning=FALSE, Add_Pol_Party}
 contrib <- merge(contrib, subset(cand_info[c("cand_id", "cand_pty_aff")]), by = "cand_id")
 ```
 This political party data comes from the Federal Election Commission website.
 
 #### Split Full Name Column into First and Last Name
-```{r echo=FALSE, message=FALSE, warning=FALSE, Formatting}
+```{r echo=FALSE, message=FALSE, warning=FALSE, Split_Name}
 contrib <- separate(contrib, contbr_nm, c("last_name", "first_name"), sep = ",", extra="merge", fill="right")
 contrib <- data.frame(lapply(contrib, trimws))
 contrib$clean_first_name <- gsub("([A-Za-z]+).*", "\\1", contrib$first_name)
 ```
 
 #### Add Gender to Contributors
-```{r echo=FALSE, message=FALSE, warning=FALSE, Bivariate_Plots}
+```{r echo=FALSE, message=FALSE, warning=FALSE, Add_Gender}
 gender_lookup <- gender(c(unique(contrib$clean_first_name)))
 contrib <- left_join(contrib,gender_lookup,by = c("clean_first_name"="name"))
 
@@ -249,10 +249,10 @@ In order to determine each contributors gender, I used the 'gender' package in R
 which encodes gender based on names and dates of birth using historical datasets.
 I decided to use a threshold of 75% certainty to assign a gender to a contributor.
 
-### Contributor Political Party Investigation
+### Political Party Investigation
 
-#### Contributor Gender vs. Political Party
-```{r echo=FALSE, message=FALSE, warning=FALSE, Bivariate_Plots}
+#### Contributor Gender vs. Candidate Political Party
+```{r echo=FALSE, message=FALSE, warning=FALSE, Gender_v_Party}
 ggplot(aes(x=cand_pty_aff),
        data=subset(contrib,!is.na(gender) & cand_pty_aff %in% c('Republican Party','Democratic Party'))) +
   geom_histogram(stat='count',aes(fill=cand_pty_aff)) +
@@ -261,8 +261,8 @@ ggplot(aes(x=cand_pty_aff),
 Both men and women in Michigan donate more to Democrats than Republicans;
 however, women are significantly more likely to donate Democratic than men.
 
-#### Contributions Totals by Date and Political Party
-```{r echo=FALSE, message=FALSE, warning=FALSE, Bivariate_Plots}
+#### Contributions Counts by Date and Political Party
+```{r echo=FALSE, message=FALSE, warning=FALSE, Date_v_Party}
 contrib_by_date_w_party <- contrib %>% 
   group_by(contrib_month_year, cand_pty_aff ) %>% 
   summarise(total = n())
@@ -275,8 +275,8 @@ While Republicans actually donated more prior to 2016, the Democratic candidates
 received the overall majority of contributions. There were very few donations
 that were Libertarian or not marked for a particular party.
 
-#### Republican Candidate Contribution Totals by Date
-```{r echo=FALSE, message=FALSE, warning=FALSE, Bivariate_Plots}
+#### Republican Candidate Contribution Counts by Date
+```{r echo=FALSE, message=FALSE, warning=FALSE, Rep_Counts}
 reps <- subset(contrib, cand_pty_aff == 'Republican Party') %>% 
   group_by(contrib_month_year, cand_nm) %>% 
   summarise(total = n())
@@ -301,12 +301,12 @@ and campaign contributions.
 There is a very strong correlation between female gender and Democratic Party 
 contributions. Other discoveries include how cluttered the Republican 
 race was prior to primaries, the lack of Trump support prior to the Republican
-Primary and the strong Bernie support prior to the Democratic National Convention.
+Primary and the strong Bernie support before the Democratic National Convention.
 
 ## Multivariate Plots Section
 
 #### Hillary vs. Trump over Time
-```{r echo=FALSE, message=FALSE, warning=FALSE, Bivariate_Plots}
+```{r echo=FALSE, message=FALSE, warning=FALSE, Hill_v_Trump}
 hill_v_trump <- subset(contrib, cand_nm %in% c('Clinton, Hillary Rodham','Trump, Donald J.') & !is.na(gender)) %>% 
   group_by(contrib_month_year, gender, cand_nm) %>% 
   summarise(total = n())
@@ -316,16 +316,16 @@ ggplot(data=hill_v_trump, aes(x=contrib_month_year, y=total, group=cand_nm)) +
   scale_x_discrete(breaks = unique(contrib_by_month_year$contrib_month_year)[seq(1,28,6)]) +
   facet_wrap(~gender)
 ```
-Donations trends to Hillary vs. Trump were uniform in shape, but not in scale
+Donation trends to Hillary vs. Trump were uniform in shape, but not in scale
 across the genders and time. One key difference is that women always donated 
 more to Hillary than Trump, while men donated more to different candidates at 
 different points in time. In the months right before the general election, men
-actually donated more to Hillary!
+actually made more donations to Hillary!
 
 ### Contribution Amount Distribution
 
 #### Top 10 Candidates
-```{r echo=FALSE, message=FALSE, warning=FALSE, Multivariate_Plots}
+```{r echo=FALSE, message=FALSE, warning=FALSE, Top_10}
 top_10 <- head(ordered_cands, 10)$cand_nm
 
 ggplot(aes(x = cand_nm,y=contb_receipt_amt), 
@@ -339,7 +339,7 @@ Contribution Observations
 + Jeb Bush has comically large contributions 
 
 #### By Political Party and Gender
-```{r echo=FALSE, message=FALSE, warning=FALSE, Bivariate_Plots}
+```{r echo=FALSE, message=FALSE, warning=FALSE, Party_v_Gender}
 contrib$contb_receipt_amt <- as.numeric(as.character(contrib$contb_receipt_amt))
 
 ggplot(aes(x = cand_pty_aff,y=contb_receipt_amt), data=subset(contrib,!is.na(gender) & cand_pty_aff %in% c('Republican Party','Democratic Party') & contb_receipt_amt > 0 & contb_receipt_amt <= 2700)) + 
@@ -347,12 +347,12 @@ ggplot(aes(x = cand_pty_aff,y=contb_receipt_amt), data=subset(contrib,!is.na(gen
       facet_wrap(~gender)
 ```
 From this boxplot, you can see that the interquartile range for contribution 
-amount is less than $100 across gender/political party and that Republican men 
+amounts is less than $100 across gender/political party and that Republican men 
 give the most per contribution.
 
 ### Determine Population Density and Unemployment Rate of Contributor Zip Codes
 
-```{r echo=FALSE, message=FALSE, warning=FALSE, Multivariate_Plots}
+```{r echo=FALSE, message=FALSE, warning=FALSE, Add_Unemp_Pop_Den}
 # Join the unemployment and population density datasets to contributor table
 contrib$contbr_zip <- as.integer(substr(contrib$contbr_zip, 0, 5))
 contrib <- left_join(contrib,unemployment,by = c("contbr_zip"="Zip"))
@@ -372,7 +372,7 @@ a strong indicator of candidate preference.
 
 ### Classify Contributor Community Type based on Population Density 
 
-```{r echo=FALSE, message=FALSE, warning=FALSE, Bivariate_Plots}
+```{r echo=FALSE, message=FALSE, warning=FALSE, Assign_Community_Type}
 contrib$community_type <- cut(contrib$`Density Per Sq Mile`, breaks = c(0, 102, 2213,10000), labels = c('rural', 'suburban', 'urban'), right=FALSE)
 ```
 
@@ -387,7 +387,7 @@ These cutoffs are based on an analysis presented on the FiveThirtyEight blog:
 
 
 #### Party Affiliation vs. Unemployment vs. Population Density
-```{r echo=FALSE,message=FALSE, warning=FALSE,Multivariate_Plots}
+```{r echo=FALSE,message=FALSE, warning=FALSE,Multivariate_Plot}
 ggplot(aes(y=`Unemp. Rate`,x=`Density Per Sq Mile`), data=contrib) +
     geom_point(aes(color=cand_pty_aff),alpha = 1/100, size=3) +
       scale_color_brewer(type = 'div',
@@ -403,7 +403,7 @@ density and higher unemployment while Republicans seem to live in areas with
 average unemployment and lower to moderate population density.
 
 #### Correlation: Population Density, Gender, Party Affiliation
-```{r echo=FALSE, message=FALSE, warning=FALSE, Multivariate_Plots}
+```{r echo=FALSE, message=FALSE, warning=FALSE, Correlation_One}
 feats = c('gender','cand_pty_aff')
 for (f in feats){
   df_dummy = acm.disjonctif(contrib[f])
@@ -419,13 +419,13 @@ upper <- as.data.frame(upper)
 upper
 ```
 Correlation Observations
-+ There are only minor correlations:
++ There are minor correlations between:
   + Democrats: higher population density, female
   + Republicans: lower population density, male
 
 
 ### Group by Party and Zip Code
-```{r echo=FALSE, message=FALSE, warning=FALSE, Multivariate_Plots}
+```{r echo=FALSE, message=FALSE, warning=FALSE, Group_Party_Zip}
 ## by zip code
 group_by_zip <- contrib %>% 
   group_by(contbr_zip) %>% 
@@ -455,7 +455,7 @@ of contributions) for each zip code and calculate the percentage of total
 contributions that party receives.
 
 #### Median Donation by Zip Code
-```{r echo=FALSE, message=FALSE, warning=FALSE, Multivariate_Plots}
+```{r echo=FALSE, message=FALSE, warning=FALSE, Donation_Map}
 don_amt <- subset(group_by_zip,total > 10 & !is.na(region), c('region','value'))
 
 zip_choropleth(don_amt, 
@@ -472,7 +472,7 @@ than $30. The black regions are excluded zip codes since they have less than
 
 #### Correlation: Median Donation, Total Donations, Party Leaning
 
-```{r echo=FALSE, message=FALSE, warning=FALSE, Multivariate_Plots}
+```{r echo=FALSE, message=FALSE, warning=FALSE, Correlation_Two}
 amt_pty_cor <- full_join(group_by_zip,group_by_party,by = 'region')
 
 setnames(amt_pty_cor, "value.x", "median donation")
@@ -522,7 +522,7 @@ ggplot(data=hill_v_bern, aes(x=contrib_month_year, y=total, group=cand_nm)) +
 The above plot shows that Bernie Sanders actually had more support (based on 
 number of contributions) from 2015 to well after the Democratic Primary. It was 
 not until June 2016 that Hillary surpassed Bernie in number of donations, and not
-until after the DNC that his support fully dried up. This coincides with my 
+until after the DNC that Bernie support fully dried up. This coincides with my 
 understanding of Bernie as a grassroots candidate with widespread and loyal 
 supporters.
 
@@ -598,7 +598,66 @@ when they were more supportive of Trump.
 
 # Reflection
 
-> **Tip**: Here's the final step! Reflect on the exploration you performed and
-the insights you found. What were some of the struggles that you went through?
-What went well? What was surprising? Make sure you include an insight into
-future work that could be done with the dataset.
+### Features Examined
+
+contribution
++ amount
++ date
+
+candidate
++ political party
+
+contributor 
++ employer
++ occupation
++ gender
+
+zip code
++ population density
++ community type
++ unemployment rate
++ political party leaning
+
+### Takeaways
+
+I learned so much through this exploration! One discovery that came up 
+throughout my analysis was that Michigan residents donated more (based on number
+of contributions) to Democratic candidates, but made larger individual 
+contributions to Republicans. Another discovery was that Democrats tend to be 
+urban, female and located on the coasts, while Republicans tend to be rural, 
+male and landlocked. A final takeway was how clearly you can see campaign events 
+(like primaries, conventions and scandals) in the data.
+
+#### Surprises
+
+After the 2016 election, I heard so much about how women voted for Trump in 
+droves, which supposedly won the election for him. What surprised me from this 
+analysis is that although this may be true from a voter turnout level, it's not 
+what is reflected in the individual contributor data. 
+
+Other things that suprised me surrounded the campaign timeline and candidate 
+support. Prior to this investigation, I didn't realize what strong support 
+Bernie enjoyed between the primaries and DNC, or what minimal support Trump had 
+in comparison to other Republican candidates before the Republican Primary. 
+Another timeframe surprise was that Michigan men actually made more total 
+contributions to Hillary than Trump in the months leading up to the general 
+election.
+
+#### Struggles
+
+The main struggle that I encountered during this project was learning the 
+idiosyncrasies of R and ggplot. I also encountered several situations where 
+numeric columns were encoded as factor data, which led to issues where I 
+couldn't plot correctly because the values weren't recognized as continuous. I 
+solved these factor problems by simply converting to numeric values.
+
+#### Next Steps
+
+As next steps, I would like to more closely examine how community type (rural, 
+suburban, urban) affects contribution outcomes using race, income and voting 
+statistics. Once these features are included, I would like to delve into 
+individual cities and regions within Michigan to better understand campaign 
+donation and voting tendencies.
+
+
+
