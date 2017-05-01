@@ -43,7 +43,8 @@ contrib <- contrib[colSums(!is.na(contrib)) > 0]
 
 This report explores a dataset containing campaign contributions to all
 candidates in the 2016 presidential election by Michigan residents. As a former 
-Michigander, I'm particularly interested in Michigan's current political climate.
+Michigander, I'm particularly interested in Michigan's current political 
+climate.
 
 ## Univariate Plots Section
 
@@ -59,8 +60,8 @@ str(contrib)
 length(unique(contrib$cand_nm))
 ```
 
-Our dataset consists of 18 variables, with 163,765 observations and 24 individual 
-candidates that residents contributed to.
+Our dataset consists of 18 variables, with 163,765 observations and 24 
+individual candidates that residents contributed to.
 
 #### Summary of Contributions to Each Candidates
 
@@ -138,7 +139,8 @@ ggplot(aes(x = contb_receipt_amt), data = subset(contrib,contb_receipt_amt > 100
   scale_y_continuous(limits = c(0, 1500))
 ```
 
-According to the Federal Election Commission, individual contribution limits are:
+According to the Federal Election Commission, individual contribution limits 
+are:
 
 > $2,700 per election to a Federal candidate or the candidate's campaign committee. Notice that the limit applies separately to each election. Primaries, runoffs and general elections are considered separate elections.
 
@@ -190,7 +192,8 @@ contrib %>%
 Employment Observations
 
 + Retired people are the most frequent contibutors by far
-+ Employees of universities, automakers and hosptial systems are frequent contributors
++ Employees of universities, automakers and hosptial systems are frequent 
+contributors
 + There are a large number of contributions without employer and occupation info
 
 
@@ -215,9 +218,10 @@ ggplot(data=contrib_by_month_year, aes(x=contrib_month_year, y=total, group=1)) 
 
 From the plot above, you can see a gradual climb in donations during 2015 and a 
 steep climb from January to March 2016. There are three contribution peaks in 
-2016 — in March, July and October — each coinciding with an election event. There 
-was the Michigan Primary on March 8th, the Democratic and Republican national 
-conventions at the end of July and the general election on November 8th.
+2016 — in March, July and October — each coinciding with an election event. 
+There was the Michigan Primary on March 8th, the Democratic and Republican 
+national conventions at the end of July and the general election on November 
+8th.
 
 
 ## Univariate Summary
@@ -225,14 +229,16 @@ conventions at the end of July and the general election on November 8th.
 To me, the most interesting features in this dataset are 'cand_nm', 'contbr_nm', 
 'contbr_zip', 'contb_receipt_amt' and 'contb_receipt_dt.' I can use 
 'contb_receipt_amt' and 'contb_receipt_dt' for each contribution to investigate
-temporal and candidate popularity trends. With 'contbr_nm' and 'contbr_zip', I can
-infer information about the contributor such as geographic location and gender.
+temporal and candidate popularity trends. With 'contbr_nm' and 'contbr_zip', I 
+can infer information about the contributor such as geographic location and 
+gender.
 
 A few takeaways from my analysis so far are that Democratic candidates received
 more contributions than Republicans and that a majority of contributions are
-small (less than $500). Other interesting things I noticed were that contribution
-amounts cluster around campaign maxs for larger donors and contributions peak 
-around key election events (like primaries, conventions or scandals).
+small (less than $500). Other interesting things I noticed were that 
+contribution amounts cluster around campaign maxs for larger donors and 
+contributions peak around key election events (like primaries, conventions or 
+scandals).
 
 # Bivariate Plots Section
 
@@ -261,9 +267,10 @@ contrib_by_date_w_gender <- subset(contrib,proportion_male > 0.75 | proportion_f
 
 #### Add Gender to Contributors
 
-In order to determine each contributors gender, I used the 'gender' package in R,
-which encodes gender based on names and dates of birth using historical datasets.
-I decided to use a threshold of 75% certainty to assign a gender to a contributor.
+In order to determine each contributors gender, I used the 'gender' package in 
+R, which encodes gender based on names and dates of birth using historical 
+datasets. I decided to use a threshold of 75% certainty to assign a gender to a 
+contributor.
 
 ### Political Party Investigation
 
@@ -277,6 +284,7 @@ ggplot(aes(x=cand_pty_aff),
 
 Both men and women in Michigan donate more to Democrats than Republicans;
 however, women are significantly more likely to donate Democratic than men.
+
 
 #### Contributions Counts by Date and Political Party
 ```{r echo=FALSE, message=FALSE, warning=FALSE, Date_v_Party}
@@ -292,6 +300,29 @@ ggplot(data=na.omit(subset(contrib_by_date_w_party,cand_pty_aff != " ")), aes(x=
 While Republicans actually donated more prior to 2016, the Democratic candidates
 received the overall majority of contributions. There were very few donations
 that were Libertarian or not marked for a particular party.
+
+#### Democratic Candidate Contribution Counts by Date
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, Hill_Bern}
+hill_v_bern <- subset(contrib, cand_nm %in% c('Clinton, Hillary Rodham','Sanders, Bernard')) %>% 
+  group_by(contrib_month_year, cand_nm) %>% 
+  summarise(total = n())
+
+ggplot(data=hill_v_bern, aes(x=contrib_month_year, y=total, group=cand_nm)) +
+  geom_bar(aes(fill = cand_nm),position = "dodge",stat="identity") +
+  scale_x_discrete(breaks = unique(contrib_by_month_year$contrib_month_year)[seq(1,28,3)]) +
+  xlab("Contribution Date") +
+  ylab("Contribution Count") +
+  guides(fill=guide_legend(title="Candidate Name")) +
+  ggtitle("Hillary vs. Bernie Support by Date")
+```
+
+The above plot shows that Bernie Sanders actually had more support (based on 
+number of contributions) from 2015 to well after the Democratic Primary. It was 
+not until June 2016 that Hillary surpassed Bernie in number of donations, 
+and not until after the DNC that Bernie support fully dried up. This coincides 
+with my understanding of Bernie as a grassroots candidate with widespread and 
+loyal supporters.
 
 #### Republican Candidate Contribution Counts by Date
 ```{r echo=FALSE, message=FALSE, warning=FALSE, Rep_Counts}
@@ -346,7 +377,10 @@ actually made more donations to Hillary!
 
 #### Top 10 Candidates
 
-```{r echo=FALSE, message=FALSE, warning=FALSE, Top_10}
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, Cands_Dist}
+contrib$contb_receipt_amt <- as.numeric(as.character(contrib$contb_receipt_amt))
+
 top_10 <- head(ordered_cands, 10)$cand_nm
 
 ggplot(aes(x = cand_nm,y=contb_receipt_amt), 
@@ -364,7 +398,6 @@ Contribution Observations
 #### By Political Party and Gender
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, Party_v_Gender}
-contrib$contb_receipt_amt <- as.numeric(as.character(contrib$contb_receipt_amt))
 
 ggplot(aes(x = cand_pty_aff,y=contb_receipt_amt), data=subset(contrib,!is.na(gender) & cand_pty_aff %in% c('Republican Party','Democratic Party') & contb_receipt_amt > 0 & contb_receipt_amt <= 2700)) + 
       geom_boxplot(aes(fill=cand_pty_aff)) +
@@ -412,6 +445,44 @@ These cutoffs are based on an analysis presented on the FiveThirtyEight blog:
 
 > Our analysis showed that the single best predictor of whether someone said his or her area was urban, suburban or rural was ZIP code density. Residents of ZIP codes with more than 2,213 people per square mile typically described their area as urban. Residents of neighborhoods with 102 to 2,213 people per square mile typically called their area suburban. In ZIP codes with fewer than 102 people per square mile, residents typically said they lived in a rural area.
 
+#### Support for Hillary vs. Trump over Time (segmented by gender)
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, Hill_Trump}
+women <- subset(contrib, gender == 'female' & cand_nm %in% c('Clinton, Hillary Rodham','Trump, Donald J.')) %>% 
+  group_by(contrib_month_year, community_type, cand_nm) %>% 
+  summarise(total = n())
+
+p1 <- ggplot(data=subset(women,!is.na(community_type)), aes(x=contrib_month_year, y=total, group=cand_nm)) +
+  geom_line(aes(color = cand_nm)) +
+  scale_x_discrete(breaks = unique(contrib_by_month_year$contrib_month_year)[seq(1,28,6)]) +
+  facet_wrap(~community_type,scales="free",ncol = 1) +
+  theme(legend.position="bottom",legend.text=element_text(size=8)) +
+  xlab("Contribution Date") +
+  ylab("Contribution Count") +
+  ggtitle("Female")
+
+men <- subset(contrib, gender == 'male' & cand_nm %in% c('Clinton, Hillary Rodham','Trump, Donald J.')) %>% 
+  group_by(contrib_month_year, community_type, cand_nm) %>% 
+  summarise(total = n())
+  
+
+p2 <- ggplot(data=subset(men,!is.na(community_type)), aes(x=contrib_month_year, y=total, group=cand_nm)) +
+  geom_line(aes(color = cand_nm)) +
+  scale_x_discrete(breaks = unique(contrib_by_month_year$contrib_month_year)[seq(1,28,6)]) +
+  facet_wrap(~community_type,scales="free",ncol = 1) + 
+  theme(legend.position="bottom",legend.text=element_text(size=8)) +
+  xlab("Contribution Date") +
+  ylab("") +
+  ggtitle("Male")
+
+
+grid.arrange(p1,p2,ncol=2, top=textGrob("Hillary vs. Trump Support by Date/Gender/Community Type", gp=gpar(fontsize=13,font=8)))
+```
+
+Finally, I investigate how support for Hillary vs. Trump differed by gender and
+community type as a function of time. In general female voters favored Hillary,
+while male voters favored Trump. In terms of community type, city dwellers were
+more likely to support Hillary while rural Michiganders supported Trump. 
 
 #### Party Affiliation vs. Unemployment vs. Population Density
 
@@ -426,9 +497,9 @@ ggplot(aes(y=`Unemp. Rate`,x=`Density Per Sq Mile`), data=contrib) +
       ylim(0,35)
 ```
 
-In general, Democratic contributors appear to live in areas with higher population
-density and higher unemployment while Republicans seem to live in areas with 
-average unemployment and lower to moderate population density.
+In general, Democratic contributors appear to live in areas with higher 
+population density and higher unemployment while Republicans seem to live in 
+areas with average unemployment and lower to moderate population density.
 
 #### Correlation: Population Density, Gender, Party Affiliation
 
@@ -492,10 +563,27 @@ zip_choropleth(don_amt,
                num_colors = 4) + coord_map()
 ```
 
-The geography of median donation seems to be relatively evenly distributed across
-the state with the exeception of Metro Detroit which is almost uniformly less 
-than $30. The black regions are excluded zip codes since they have less than 
-10 donations.
+The geography of median donation seems to be relatively evenly distributed 
+across the state with the exeception of Metro Detroit which is almost uniformly 
+less than $30. The black regions are excluded zip codes since they have less 
+than 10 donations.
+
+#### Party Leanings based on Zip Code
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, Party_by_Zip}
+pty_ct <- subset(group_by_party,total > 5 & !is.na(region), c('region','value'))
+
+zip_choropleth(pty_ct, 
+               state_zoom = "michigan", 
+               title      = "Dominant Political Party by Zip Code: Donation Proportion",
+               legend     = "Dem (+); Rep (-)",
+               num_colors = 1) + coord_map()
+```
+
+On the above map, the darker zip codes code as Democratic and the lighter ones
+as Republican. As you can see, the Metro Detroit area and a majority of the 
+coastal zip codes are Democratic, while the Republican patches are spread out 
+around the state and tend to be landlocked.
 
 #### Correlation: Median Donation, Total Donations, Party Leaning
 
@@ -510,7 +598,8 @@ pairs(na.omit(amt_pty_cor[,c('median donation','total donations','dem_percent','
 
 The above scatterplot matrix shows each zip code as a point. This plot simply
 reinforces that Democrats live in more densely populated areas than Republicans,
-since the Democratic zip code have more total donations than the Republican zips.
+since the Democratic zip code have more total donations than the Republican 
+zips.
 
 ## Multivariate Summary
 
@@ -542,6 +631,7 @@ ggplot(data=hill_v_bern, aes(x=contrib_month_year, y=total, group=cand_nm)) +
   scale_x_discrete(breaks = unique(contrib_by_month_year$contrib_month_year)[seq(1,28,3)]) +
   xlab("Contribution Date") +
   ylab("Contribution Count") +
+  guides(fill=guide_legend(title="Candidate Name")) +
   ggtitle("Hillary vs. Bernie Support by Date")
 ```
 
@@ -549,15 +639,14 @@ ggplot(data=hill_v_bern, aes(x=contrib_month_year, y=total, group=cand_nm)) +
 
 The above plot shows that Bernie Sanders actually had more support (based on 
 number of contributions) from 2015 to well after the Democratic Primary. It was 
-not until June 2016 that Hillary surpassed Bernie in number of donations, and not
-until after the DNC that Bernie support fully dried up. This coincides with my 
-understanding of Bernie as a grassroots candidate with widespread and loyal 
-supporters.
+not until June 2016 that Hillary surpassed Bernie in number of donations, 
+and not until after the DNC that Bernie support fully dried up. This coincides 
+with my understanding of Bernie as a grassroots candidate with widespread and 
+loyal supporters.
 
 ## Plot Two
 
 ### Party Leanings based on Zip Code
-
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, Plot_Two}
 pty_ct <- subset(group_by_party,total > 5 & !is.na(region), c('region','value'))
@@ -572,12 +661,12 @@ zip_choropleth(pty_ct,
 ### Description Two
 
 On the above map, the darker zip codes code as Democratic and the lighter ones
-as Republican. As you can see, the Metro Detroit area and a majority of the coastal
-zip codes are Democratic, while the Republican patches are spread out around
-the state and tend to be landlocked.
+as Republican. As you can see, the Metro Detroit area and a majority of the 
+coastal zip codes are Democratic, while the Republican patches are spread out 
+around the state and tend to be landlocked.
 
-For the politcal party calculations, I select the dominant party (based on number
-of contributions) for each zip code and calculate the percentage of total 
+For the politcal party calculations, I select the dominant party (based on 
+number of contributions) for each zip code and calculate the percentage of total 
 contributions that party receives.
 
 ## Plot Three
@@ -593,7 +682,7 @@ p1 <- ggplot(data=subset(women,!is.na(community_type)), aes(x=contrib_month_year
   geom_line(aes(color = cand_nm)) +
   scale_x_discrete(breaks = unique(contrib_by_month_year$contrib_month_year)[seq(1,28,6)]) +
   facet_wrap(~community_type,scales="free",ncol = 1) +
-  theme(legend.position="bottom",legend.text=element_text(size=8)) +
+  theme(legend.position="bottom",legend.text=element_text(size=8),legend.title=element_blank()) +
   xlab("Contribution Date") +
   ylab("Contribution Count") +
   ggtitle("Female")
@@ -607,7 +696,7 @@ p2 <- ggplot(data=subset(men,!is.na(community_type)), aes(x=contrib_month_year, 
   geom_line(aes(color = cand_nm)) +
   scale_x_discrete(breaks = unique(contrib_by_month_year$contrib_month_year)[seq(1,28,6)]) +
   facet_wrap(~community_type,scales="free",ncol = 1) + 
-  theme(legend.position="bottom",legend.text=element_text(size=8)) +
+  theme(legend.position="bottom",legend.text=element_text(size=8),legend.title=element_blank()) +
   xlab("Contribution Date") +
   ylab("") +
   ggtitle("Male")
