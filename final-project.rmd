@@ -18,23 +18,54 @@ library(choroplethrZip)
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, Load_the_Data}
 # Load the Contribution Data for Michigan
-header <- read.table("2016-MI.csv", nrow = 1, stringsAsFactors = FALSE, sep = ",")
-contrib <- read.table("2016-MI.csv", skip = 1, stringsAsFactors = FALSE, sep = ",")
+header <- read.table("2016-MI.csv", 
+                     nrow = 1, 
+                     stringsAsFactors = FALSE, 
+                     sep = ",")
+
+contrib <- read.table("2016-MI.csv", 
+                      skip = 1, 
+                      stringsAsFactors = FALSE, 
+                      sep = ",")
+
 names(contrib) <- header
 
 # Load Candidate Info (i.e. Party Affiliation)
-header <- read.table("candidate-list.csv", nrow = 1, stringsAsFactors = FALSE, sep = ",")
-cand_info <- read.table("candidate-list.csv", skip = 1, stringsAsFactors = FALSE, sep = ",")
+header <- read.table("candidate-list.csv", 
+                     nrow = 1, 
+                     stringsAsFactors = FALSE, 
+                     sep = ",")
+
+cand_info <- read.table("candidate-list.csv", 
+                        skip = 1, 
+                        stringsAsFactors = FALSE, 
+                        sep = ",")
+
 names(cand_info) <- header
 
 # Load Unemployment Dataset
-header <- read.table("unemployment-zipcode.csv", nrow = 1, stringsAsFactors = FALSE, sep = ",")
-unemployment <- read.table("unemployment-zipcode.csv", skip = 1, stringsAsFactors = FALSE, sep = ",")
+header <- read.table("unemployment-zipcode.csv", 
+                     nrow = 1, 
+                     stringsAsFactors = FALSE, 
+                     sep = ",")
+
+unemployment <- read.table("unemployment-zipcode.csv", 
+                           skip = 1, 
+                           stringsAsFactors = FALSE, 
+                           sep = ",")
+
 names(unemployment) <- header
 
 # Load Population Density Dataset
-header <- read.table("population-density-zipcode.csv", nrow = 1, stringsAsFactors = FALSE, sep = ",")
-pop_density <- read.table("population-density-zipcode.csv", skip = 1, stringsAsFactors = FALSE, sep = ",")
+header <- read.table("population-density-zipcode.csv", 
+                     nrow = 1, stringsAsFactors = FALSE, 
+                     sep = ",")
+
+pop_density <- read.table("population-density-zipcode.csv", 
+                          skip = 1, 
+                          stringsAsFactors = FALSE, 
+                          sep = ",")
+
 names(pop_density) <- header
 
 # Remove NA column(s)
@@ -67,12 +98,15 @@ individual candidates that residents contributed to.
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, Contributions_by_Candidate}
 cands <- group_by(contrib, cand_nm)
-cand_summary <- summarize(cands, total = length(contb_receipt_amt),
+
+cand_summary <- summarize(cands, 
+                          total = length(contb_receipt_amt),
                           avg = mean(contb_receipt_amt, na.rm = TRUE), 
                           median = median(contb_receipt_amt), 
                           max = max(contb_receipt_amt))
 
 ordered_cands <- cand_summary[order(cand_summary$total, decreasing=TRUE) , ]
+
 ordered_cands
 ```
 
@@ -85,7 +119,9 @@ donation per Republican candidate was roughly double that of the Democrats.
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, Contributions_by_City}
 city <- group_by(contrib, contbr_city)
-city_summary <- summarize(city, total = length(contb_receipt_amt),
+
+city_summary <- summarize(city, 
+                          total = length(contb_receipt_amt),
                           avg = mean(contb_receipt_amt, na.rm = TRUE), 
                           median = median(contb_receipt_amt), 
                           max = max(contb_receipt_amt))
@@ -102,7 +138,8 @@ understanding of the wealth in these communities.
 #### Overall Distribution
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, Overall_Histogram}
-ggplot(aes(x = contb_receipt_amt), data = contrib) + 
+ggplot(aes(x = contb_receipt_amt), 
+       data = contrib) + 
   geom_histogram(binwidth=5) +
   scale_x_sqrt(limits = c(0,2800))
 ```
@@ -114,7 +151,8 @@ of individual donations.
 #### Contributions less than $100
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, Less_100}
-ggplot(aes(x = contb_receipt_amt), data = subset(contrib,contb_receipt_amt < 100)) + 
+ggplot(aes(x = contb_receipt_amt), 
+       data = subset(contrib,contb_receipt_amt < 100)) + 
   geom_histogram(binwidth=10) +
   scale_x_continuous(limits = c(0, 100))
 ```
@@ -125,7 +163,8 @@ which aligns with suggested donation amounts incremented by $25.
 #### Contributions less than $400
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, Less_400}
-ggplot(aes(x = contb_receipt_amt), data = subset(contrib,contb_receipt_amt < 400)) + 
+ggplot(aes(x = contb_receipt_amt), 
+       data = subset(contrib,contb_receipt_amt < 400)) + 
   geom_histogram(binwidth=50) +
   scale_x_continuous(limits = c(0, 400))
 ```
@@ -133,7 +172,8 @@ ggplot(aes(x = contb_receipt_amt), data = subset(contrib,contb_receipt_amt < 400
 #### Contributions greater than $1000
 
 ```{r echo=FALSE,message=FALSE, warning=FALSE,  Greater_1000}
-ggplot(aes(x = contb_receipt_amt), data = subset(contrib,contb_receipt_amt > 1000)) + 
+ggplot(aes(x = contb_receipt_amt), 
+       data = subset(contrib,contb_receipt_amt > 1000)) + 
   geom_histogram(binwidth=750) +
   scale_x_continuous(limits = c(1000, 6000)) +
   scale_y_continuous(limits = c(0, 1500))
@@ -150,12 +190,14 @@ this reflected in the clustering of contribution counts at $2700 and $5400.
 ### Candidates with the Most and Fewest Donations
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, Most_Fewest_Donations}
-p1 <- ggplot(aes(y=total, x= cand_nm),data=head(ordered_cands, 5)) + 
+p1 <- ggplot(aes(y=total, x= cand_nm),
+             data=head(ordered_cands, 5)) + 
         geom_bar(stat="identity") + 
         theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
         ggtitle("Most Contributions")
 
-p2 <- ggplot(aes(y=total, x= cand_nm),data=tail(ordered_cands, 5)) + 
+p2 <- ggplot(aes(y=total, x= cand_nm),
+             data=tail(ordered_cands, 5)) + 
         geom_bar(stat="identity") + 
         theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
         ggtitle("Least Contributions")
@@ -211,9 +253,11 @@ contrib_by_month_year <- contrib %>%
   group_by(contrib_month_year) %>% 
   summarise(total = n())
 
-ggplot(data=contrib_by_month_year, aes(x=contrib_month_year, y=total, group=1)) +
+ggplot(data=contrib_by_month_year, 
+       aes(x=contrib_month_year, y=total, group=1)) +
   geom_line() +
-  scale_x_discrete(breaks = unique(contrib_by_month_year$contrib_month_year)[seq(1,28,3)])
+  scale_x_discrete(breaks = unique(contrib_by_month_year$contrib_month_year)
+                   [seq(1,28,3)])
 ```
 
 From the plot above, you can see a gradual climb in donations during 2015 and a 
@@ -244,13 +288,20 @@ scandals).
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, Add_Pol_Party}
 ## Add Political Party Affiliation
-contrib <- merge(contrib, subset(cand_info[c("cand_id", "cand_pty_aff")]), by = "cand_id")
+contrib <- merge(contrib, 
+                 subset(cand_info[c("cand_id", "cand_pty_aff")]), 
+                 by = "cand_id")
 ## This political party data comes from the Federal Election Commission website.
 ```
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, Split_Name}
 ## Split Full Name Column into First and Last Name
-contrib <- separate(contrib, contbr_nm, c("last_name", "first_name"), sep = ",", extra="merge", fill="right")
+contrib <- separate(contrib, 
+                    contbr_nm, 
+                    c("last_name", "first_name"), 
+                    sep = ",", 
+                    extra="merge", 
+                    fill="right")
 contrib <- data.frame(lapply(contrib, trimws))
 contrib$clean_first_name <- gsub("([A-Za-z]+).*", "\\1", contrib$first_name)
 ```
@@ -258,11 +309,12 @@ contrib$clean_first_name <- gsub("([A-Za-z]+).*", "\\1", contrib$first_name)
 ```{r echo=FALSE, message=FALSE, warning=FALSE, Add_Gender}
 ## Add Gender to Contributors
 gender_lookup <- gender(c(unique(contrib$clean_first_name)))
-contrib <- left_join(contrib,gender_lookup,by = c("clean_first_name"="name"))
+contrib <- left_join(contrib, gender_lookup, by = c("clean_first_name"="name"))
 
-contrib_by_date_w_gender <- subset(contrib,proportion_male > 0.75 | proportion_female > 0.75) %>% 
-  group_by(contrib_month_year, gender ) %>% 
-  summarise(total = n())
+contrib_by_date_w_gender <- subset(contrib,proportion_male > 0.75 |
+                                     proportion_female > 0.75) %>% 
+                            group_by(contrib_month_year, gender) %>% 
+                            summarise(total = n())
 ```
 
 #### Add Gender to Contributors
@@ -277,9 +329,10 @@ contributor.
 #### Contributor Gender vs. Candidate Political Party
 ```{r echo=FALSE, message=FALSE, warning=FALSE, Gender_v_Party}
 ggplot(aes(x=cand_pty_aff),
-       data=subset(contrib,!is.na(gender) & cand_pty_aff %in% c('Republican Party','Democratic Party'))) +
-  geom_histogram(stat='count',aes(fill=cand_pty_aff)) +
-  facet_wrap(~gender)
+       data=subset(contrib,!is.na(gender) & 
+                   cand_pty_aff %in% c('Republican Party','Democratic Party'))) +
+      geom_histogram(stat='count', aes(fill=cand_pty_aff)) +
+      facet_wrap(~gender)
 ```
 
 Both men and women in Michigan donate more to Democrats than Republicans;
@@ -292,9 +345,11 @@ contrib_by_date_w_party <- contrib %>%
   group_by(contrib_month_year, cand_pty_aff ) %>% 
   summarise(total = n())
 
-ggplot(data=na.omit(subset(contrib_by_date_w_party,cand_pty_aff != " ")), aes(x=contrib_month_year, y=total, group=cand_pty_aff)) +
+ggplot(data=na.omit(subset(contrib_by_date_w_party,cand_pty_aff != " ")), 
+       aes(x=contrib_month_year, y=total, group=cand_pty_aff)) +
   geom_line(aes(color = cand_pty_aff)) +
-  scale_x_discrete(breaks = unique(contrib_by_month_year$contrib_month_year)[seq(1,28,3)])
+  scale_x_discrete(breaks = unique(contrib_by_month_year$contrib_month_year)
+                   [seq(1,28,3)])
 ```
 
 While Republicans actually donated more prior to 2016, the Democratic candidates
@@ -304,13 +359,16 @@ that were Libertarian or not marked for a particular party.
 #### Democratic Candidate Contribution Counts by Date
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, Hill_Bern}
-hill_v_bern <- subset(contrib, cand_nm %in% c('Clinton, Hillary Rodham','Sanders, Bernard')) %>% 
-  group_by(contrib_month_year, cand_nm) %>% 
-  summarise(total = n())
+hill_v_bern <- subset(contrib, cand_nm %in% 
+                        c('Clinton, Hillary Rodham','Sanders, Bernard')) %>% 
+                group_by(contrib_month_year, cand_nm) %>% 
+                summarise(total = n())
 
-ggplot(data=hill_v_bern, aes(x=contrib_month_year, y=total, group=cand_nm)) +
+ggplot(data=hill_v_bern, 
+       aes(x=contrib_month_year, y=total, group=cand_nm)) +
   geom_bar(aes(fill = cand_nm),position = "dodge",stat="identity") +
-  scale_x_discrete(breaks = unique(contrib_by_month_year$contrib_month_year)[seq(1,28,3)]) +
+  scale_x_discrete(breaks = unique(contrib_by_month_year$contrib_month_year)
+                   [seq(1,28,3)]) +
   xlab("Contribution Date") +
   ylab("Contribution Count") +
   guides(fill=guide_legend(title="Candidate Name")) +
@@ -330,9 +388,11 @@ reps <- subset(contrib, cand_pty_aff == 'Republican Party') %>%
   group_by(contrib_month_year, cand_nm) %>% 
   summarise(total = n())
 
-ggplot(data=subset(reps,total > 10), aes(x=contrib_month_year, y=total, group=cand_nm)) +
+ggplot(data=subset(reps,total > 10), 
+       aes(x=contrib_month_year, y=total, group=cand_nm)) +
   geom_line(aes(color = cand_nm)) +
-  scale_x_discrete(breaks = unique(contrib_by_month_year$contrib_month_year)[seq(1,28,3)])
+  scale_x_discrete(breaks = unique(contrib_by_month_year$contrib_month_year)
+                   [seq(1,28,3)])
 ```
 
 I think this plot is really interesting because it shows that Trump had almost 
@@ -357,13 +417,16 @@ Democratic National Convention.
 #### Hillary vs. Trump over Time
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, Hill_v_Trump}
-hill_v_trump <- subset(contrib, cand_nm %in% c('Clinton, Hillary Rodham','Trump, Donald J.') & !is.na(gender)) %>% 
+hill_v_trump <- subset(contrib, cand_nm %in% 
+                         c('Clinton, Hillary Rodham','Trump, Donald J.') 
+                       & !is.na(gender)) %>% 
   group_by(contrib_month_year, gender, cand_nm) %>% 
   summarise(total = n())
 
 ggplot(data=hill_v_trump, aes(x=contrib_month_year, y=total, group=cand_nm)) +
   geom_bar(aes(fill = cand_nm),position = "dodge",stat="identity") +
-  scale_x_discrete(breaks = unique(contrib_by_month_year$contrib_month_year)[seq(1,28,6)]) +
+  scale_x_discrete(breaks = unique(contrib_by_month_year$contrib_month_year)
+                   [seq(1,28,6)]) +
   facet_wrap(~gender)
 ```
 
@@ -384,8 +447,10 @@ contrib$contb_receipt_amt <- as.numeric(as.character(contrib$contb_receipt_amt))
 top_10 <- head(ordered_cands, 10)$cand_nm
 
 ggplot(aes(x = cand_nm,y=contb_receipt_amt), 
-       data=subset(contrib,cand_nm %in% top_10 & contb_receipt_amt > 0 & contb_receipt_amt <= 2700)) + 
+       data=subset(contrib,cand_nm %in% top_10 & contb_receipt_amt > 0 
+                   & contb_receipt_amt <= 2700)) + 
   geom_boxplot(aes(fill=cand_pty_aff)) +
+  scale_y_sqrt() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
@@ -399,8 +464,13 @@ Contribution Observations
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, Party_v_Gender}
 
-ggplot(aes(x = cand_pty_aff,y=contb_receipt_amt), data=subset(contrib,!is.na(gender) & cand_pty_aff %in% c('Republican Party','Democratic Party') & contb_receipt_amt > 0 & contb_receipt_amt <= 2700)) + 
+ggplot(aes(x = cand_pty_aff,y=contb_receipt_amt), 
+       data=subset(contrib,!is.na(gender) & cand_pty_aff %in% 
+                     c('Republican Party','Democratic Party') 
+                   & contb_receipt_amt > 0 & contb_receipt_amt <= 2700)) + 
       geom_boxplot(aes(fill=cand_pty_aff)) +
+      theme(legend.position="none") + 
+      scale_y_log10() + 
       facet_wrap(~gender)
 ```
 
@@ -432,7 +502,10 @@ a strong indicator of candidate preference.
 ### Classify Contributor Community Type based on Population Density 
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, Assign_Community_Type}
-contrib$community_type <- cut(contrib$`Density Per Sq Mile`, breaks = c(0, 102, 2213,10000), labels = c('rural', 'suburban', 'urban'), right=FALSE)
+contrib$community_type <- cut(contrib$`Density Per Sq Mile`, 
+                              breaks = c(0, 102, 2213,10000), 
+                              labels = c('rural', 'suburban', 'urban'), 
+                              right=FALSE)
 ```
 
 Classification (People per Square Mile):
@@ -448,27 +521,33 @@ These cutoffs are based on an analysis presented on the FiveThirtyEight blog:
 #### Support for Hillary vs. Trump over Time (segmented by gender)
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, Hill_Trump}
-women <- subset(contrib, gender == 'female' & cand_nm %in% c('Clinton, Hillary Rodham','Trump, Donald J.')) %>% 
+women <- subset(contrib, gender == 'female' & cand_nm %in% 
+                  c('Clinton, Hillary Rodham','Trump, Donald J.')) %>% 
   group_by(contrib_month_year, community_type, cand_nm) %>% 
   summarise(total = n())
 
-p1 <- ggplot(data=subset(women,!is.na(community_type)), aes(x=contrib_month_year, y=total, group=cand_nm)) +
+p1 <- ggplot(data=subset(women,!is.na(community_type)), 
+             aes(x=contrib_month_year, y=total, group=cand_nm)) +
   geom_line(aes(color = cand_nm)) +
-  scale_x_discrete(breaks = unique(contrib_by_month_year$contrib_month_year)[seq(1,28,6)]) +
+  scale_x_discrete(breaks = unique(contrib_by_month_year$contrib_month_year)
+                   [seq(1,28,6)]) +
   facet_wrap(~community_type,scales="free",ncol = 1) +
   theme(legend.position="bottom",legend.text=element_text(size=8)) +
   xlab("Contribution Date") +
   ylab("Contribution Count") +
   ggtitle("Female")
 
-men <- subset(contrib, gender == 'male' & cand_nm %in% c('Clinton, Hillary Rodham','Trump, Donald J.')) %>% 
+men <- subset(contrib, gender == 'male' & cand_nm %in% 
+                c('Clinton, Hillary Rodham','Trump, Donald J.')) %>% 
   group_by(contrib_month_year, community_type, cand_nm) %>% 
   summarise(total = n())
   
 
-p2 <- ggplot(data=subset(men,!is.na(community_type)), aes(x=contrib_month_year, y=total, group=cand_nm)) +
+p2 <- ggplot(data=subset(men,!is.na(community_type)), 
+             aes(x=contrib_month_year, y=total, group=cand_nm)) +
   geom_line(aes(color = cand_nm)) +
-  scale_x_discrete(breaks = unique(contrib_by_month_year$contrib_month_year)[seq(1,28,6)]) +
+  scale_x_discrete(breaks = unique(contrib_by_month_year$contrib_month_year)
+                   [seq(1,28,6)]) +
   facet_wrap(~community_type,scales="free",ncol = 1) + 
   theme(legend.position="bottom",legend.text=element_text(size=8)) +
   xlab("Contribution Date") +
@@ -476,7 +555,8 @@ p2 <- ggplot(data=subset(men,!is.na(community_type)), aes(x=contrib_month_year, 
   ggtitle("Male")
 
 
-grid.arrange(p1,p2,ncol=2, top=textGrob("Hillary vs. Trump Support by Date/Gender/Community Type", gp=gpar(fontsize=13,font=8)))
+grid.arrange(p1,p2,ncol=2, 
+             top=textGrob("Hillary vs. Trump Support by Date/Gender/Community Type", gp=gpar(fontsize=13,font=8)))
 ```
 
 Finally, I investigate how support for Hillary vs. Trump differed by gender and
@@ -487,19 +567,24 @@ more likely to support Hillary while rural Michiganders supported Trump.
 #### Party Affiliation vs. Unemployment vs. Population Density
 
 ```{r echo=FALSE,message=FALSE, warning=FALSE,Multivariate_Plot}
-ggplot(aes(y=`Unemp. Rate`,x=`Density Per Sq Mile`), data=contrib) +
-    geom_point(aes(color=cand_pty_aff),alpha = 1/100, size=3) +
-      scale_color_brewer(type = 'div',
-      guide = guide_legend(title = 'Party Affiliation', reverse = T,
-      override.aes = list(alpha = 1, size = 2))) +
-      scale_x_sqrt() +
-      xlim(0,8000) +
-      ylim(0,35)
+
+p0 <- ggplot(aes(y=`Unemp. Rate`,x=`Density Per Sq Mile`), 
+             data=subset(contrib, cand_pty_aff %in% 
+                           c('Democratic Party','Republican Party'))) +
+    geom_point(aes(color=cand_pty_aff), alpha = 1/100, size=1.5, 
+               position = position_jitter(width = 0.1, height = 0.1)) +
+    scale_color_brewer(type = 'qual', palette = 'Set1') + 
+    theme(legend.position="none")
+
+xlim = boxplot.stats(contrib$`Density Per Sq Mile`)$stats[c(1, 5)]
+p0 + coord_cartesian(xlim = xlim*1.05) + facet_wrap(~cand_pty_aff)
 ```
 
-In general, Democratic contributors appear to live in areas with higher 
-population density and higher unemployment while Republicans seem to live in 
-areas with average unemployment and lower to moderate population density.
+From the above plots, you can see that a majority of contributors live in areas
+with unemployment rates lower than 20% and population density less than 3,000
+people per square mile. For the zip codes that fall outside of that range,
+although there are still contributors from both parties, there are more 
+Democrats in these areas with higher population density and higher unemployment.
 
 #### Correlation: Population Density, Gender, Party Affiliation
 
@@ -510,7 +595,11 @@ for (f in feats){
   contrib = cbind(contrib, df_dummy)
 }
 
-cor_1 <- cor(na.omit(contrib[,c('Density Per Sq Mile','gender.male','gender.female','cand_pty_aff.Democratic Party','cand_pty_aff.Republican Party')]))
+cor_1 <- cor(na.omit(contrib[,c('Density Per Sq Mile',
+                                'gender.male',
+                                'gender.female',
+                                'cand_pty_aff.Democratic Party',
+                                'cand_pty_aff.Republican Party')]))
 
 upper <- round(cor_1,2)
 upper[upper.tri(cor_1)] <- ''
@@ -537,15 +626,17 @@ group_by_zip$region <- as.character(group_by_zip$region)
 
 ## Group by political party
 group_by_party <- contrib %>%
- group_by(contbr_zip,cand_pty_aff) %>% 
- summarise(n= n()) %>%
- ungroup() %>%
- spread(cand_pty_aff, n, fill=0) %>%
- mutate(total = `Republican Party` + `Democratic Party`,
+  group_by(contbr_zip,cand_pty_aff) %>% 
+  summarise(n= n()) %>%
+  ungroup() %>%
+  spread(cand_pty_aff, n, fill=0) %>%
+  mutate(total = `Republican Party` + `Democratic Party`,
         rep_percent = (`Republican Party`/total),
         dem_percent = (`Democratic Party`/total)) %>%
- mutate(value = ifelse(`Republican Party`>`Democratic Party`, -(rep_percent),
-               ifelse(`Republican Party`<`Democratic Party`, (dem_percent), NA)))
+  mutate(value = ifelse(`Republican Party` > `Democratic Party`, 
+                              -(rep_percent),
+                        ifelse(`Republican Party` < `Democratic Party`, 
+                               (dem_percent), NA)))
 
 setnames(group_by_party, "contbr_zip", "region")
 group_by_party$region <- as.character(group_by_party$region)
@@ -575,8 +666,8 @@ pty_ct <- subset(group_by_party,total > 5 & !is.na(region), c('region','value'))
 
 zip_choropleth(pty_ct, 
                state_zoom = "michigan", 
-               title      = "Dominant Political Party by Zip Code: Donation Proportion",
-               legend     = "Dem (+); Rep (-)",
+               title = "Dominant Political Party by Zip Code: Donation Proportion",
+               legend = "Dem (+); Rep (-)",
                num_colors = 1) + coord_map()
 ```
 
@@ -593,7 +684,10 @@ amt_pty_cor <- full_join(group_by_zip,group_by_party,by = 'region')
 setnames(amt_pty_cor, "value.x", "median donation")
 setnames(amt_pty_cor, "total.x", "total donations")
 
-pairs(na.omit(amt_pty_cor[,c('median donation','total donations','dem_percent','rep_percent')]))
+pairs(na.omit(amt_pty_cor[,c('median donation',
+                             'total donations',
+                             'dem_percent',
+                             'rep_percent')]))
 ```
 
 The above scatterplot matrix shows each zip code as a point. This plot simply
@@ -622,13 +716,17 @@ election.
 ### Hillary vs. Bernie
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, Plot_One}
-hill_v_bern <- subset(contrib, cand_nm %in% c('Clinton, Hillary Rodham','Sanders, Bernard')) %>% 
+hill_v_bern <- subset(contrib, cand_nm %in% 
+                        c('Clinton, Hillary Rodham','Sanders, Bernard')) %>% 
   group_by(contrib_month_year, cand_nm) %>% 
   summarise(total = n())
 
-ggplot(data=hill_v_bern, aes(x=contrib_month_year, y=total, group=cand_nm)) +
-  geom_bar(aes(fill = cand_nm),position = "dodge",stat="identity") +
-  scale_x_discrete(breaks = unique(contrib_by_month_year$contrib_month_year)[seq(1,28,3)]) +
+ggplot(data=hill_v_bern,
+       aes(x=contrib_month_year, y=total, group=cand_nm)) +
+  geom_bar(aes(fill = cand_nm),
+           position = "dodge",stat="identity") +
+  scale_x_discrete(breaks = unique(contrib_by_month_year$contrib_month_year)
+                   [seq(1,28,3)]) +
   xlab("Contribution Date") +
   ylab("Contribution Count") +
   guides(fill=guide_legend(title="Candidate Name")) +
@@ -653,8 +751,8 @@ pty_ct <- subset(group_by_party,total > 5 & !is.na(region), c('region','value'))
 
 zip_choropleth(pty_ct, 
                state_zoom = "michigan", 
-               title      = "Dominant Political Party by Zip Code: Donation Proportion",
-               legend     = "Dem (+); Rep (-)",
+               title = "Dominant Political Party by Zip Code: Donation Proportion",
+               legend = "Dem (+); Rep (-)",
                num_colors = 1) + coord_map()
 ```
 
@@ -674,35 +772,46 @@ contributions that party receives.
 ### Support for Hillary vs. Trump over Time (segmented by gender)
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, Plot_Three}
-women <- subset(contrib, gender == 'female' & cand_nm %in% c('Clinton, Hillary Rodham','Trump, Donald J.')) %>% 
+women <- subset(contrib, gender == 'female' & cand_nm %in% 
+                  c('Clinton, Hillary Rodham','Trump, Donald J.')) %>% 
   group_by(contrib_month_year, community_type, cand_nm) %>% 
   summarise(total = n())
 
-p1 <- ggplot(data=subset(women,!is.na(community_type)), aes(x=contrib_month_year, y=total, group=cand_nm)) +
+p1 <- ggplot(data=subset(women,!is.na(community_type)), 
+             aes(x=contrib_month_year, y=total, group=cand_nm)) +
   geom_line(aes(color = cand_nm)) +
-  scale_x_discrete(breaks = unique(contrib_by_month_year$contrib_month_year)[seq(1,28,6)]) +
-  facet_wrap(~community_type,scales="free",ncol = 1) +
-  theme(legend.position="bottom",legend.text=element_text(size=8),legend.title=element_blank()) +
+  scale_x_discrete(breaks = unique(contrib_by_month_year$contrib_month_year)
+                   [seq(1,28,6)]) +
+  facet_wrap(~community_type, scales="free", ncol = 1) +
+  theme(legend.position="bottom",
+        legend.text=element_text(size=8),
+        legend.title=element_blank()) +
   xlab("Contribution Date") +
   ylab("Contribution Count") +
   ggtitle("Female")
 
-men <- subset(contrib, gender == 'male' & cand_nm %in% c('Clinton, Hillary Rodham','Trump, Donald J.')) %>% 
+men <- subset(contrib, gender == 'male' & cand_nm %in% 
+                c('Clinton, Hillary Rodham','Trump, Donald J.')) %>% 
   group_by(contrib_month_year, community_type, cand_nm) %>% 
   summarise(total = n())
   
 
-p2 <- ggplot(data=subset(men,!is.na(community_type)), aes(x=contrib_month_year, y=total, group=cand_nm)) +
+p2 <- ggplot(data=subset(men,!is.na(community_type)), 
+             aes(x=contrib_month_year, y=total, group=cand_nm)) +
   geom_line(aes(color = cand_nm)) +
-  scale_x_discrete(breaks = unique(contrib_by_month_year$contrib_month_year)[seq(1,28,6)]) +
+  scale_x_discrete(breaks = unique(contrib_by_month_year$contrib_month_year)
+                   [seq(1,28,6)]) +
   facet_wrap(~community_type,scales="free",ncol = 1) + 
-  theme(legend.position="bottom",legend.text=element_text(size=8),legend.title=element_blank()) +
+  theme(legend.position="bottom",
+        legend.text=element_text(size=8),
+        legend.title=element_blank()) +
   xlab("Contribution Date") +
   ylab("") +
   ggtitle("Male")
 
 
-grid.arrange(p1,p2,ncol=2, top=textGrob("Hillary vs. Trump Support by Date/Gender/Community Type", gp=gpar(fontsize=13,font=8)))
+grid.arrange(p1,p2,ncol=2, 
+             top=textGrob("Hillary vs. Trump Support by Date/Gender/Community Type", gp=gpar(fontsize=13,font=8)))
 ```
 
 ### Description Three
